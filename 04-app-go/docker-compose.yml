@@ -1,0 +1,43 @@
+version: "3.9"
+
+networks:
+  web-net:
+
+services:
+  mock-restapi:
+    build: ./mock-restapi
+    image: nuttydfgdf/go-mock-restapi
+    container_name: mock-restapi-01
+    environment:
+      - HOST=mock-restapi-01
+    networks:
+      - web-net
+    # ports:
+    #   - "9090:9090"
+
+  mock-restapi2:
+    build: ./mock-restapi
+    image: nuttydfgdf/go-mock-restapi
+    container_name: mock-restapi-02
+    environment:
+      - HOST=mock-restapi-02
+    networks:
+      - web-net
+    # ports:
+    #   - "9090:9090"
+
+  haproxy:
+    image: haproxy:2.5.5-alpine
+    container_name: haproxy
+    networks:
+      - web-net
+    restart: always
+    # command: haproxy -c -f /usr/local/etc/haproxy/haproxy.cfg
+    ports:
+      - "8080:80"
+      - "1936:1936"
+    volumes:
+      - ./haproxy-conf/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+    links: #--link <name or id>:alias
+      - mock-restapi:web1.domain.com
+      - mock-restapi2:web2.domain.com

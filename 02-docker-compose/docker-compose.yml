@@ -1,0 +1,45 @@
+version: "3.9"
+
+networks:
+  web-net:
+
+services:
+  web-hello-1:
+    image: "nginx:stable-alpine"
+    networks:
+      - web-net
+    container_name: web-hello-1
+    volumes: 
+      - ./web-hello-1/html/:/usr/share/nginx/html
+    ports:
+      # - "8081:80" //Comment, We don't want to expose http to outside.
+      - "80"
+
+  web-hello-2:
+    image: "nginx:stable-alpine"
+    container_name: web-hello-2
+    networks:
+      - web-net
+    volumes: 
+      - ./web-hello-2/html/:/usr/share/nginx/html
+    ports:
+      # - "8082:80" //Comment, We don't want to expose http to outside.
+      - "80"
+
+  haproxy:
+    image: haproxy:2.5.5-alpine
+    container_name: haproxy
+    networks:
+      - web-net
+    restart: always
+    # command: haproxy -c -f /usr/local/etc/haproxy/haproxy.cfg
+    ports:
+      - "8080:80"
+      - "1936:1936"
+    volumes:
+      - ./haproxy-conf/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+    links: #--link <name or id>:alias
+      # - web-hello-1
+      # - web-hello-2
+      - web-hello-1:web1.domain.com
+      - web-hello-2:web2.domain.com
