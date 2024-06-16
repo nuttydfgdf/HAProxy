@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 	"os"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -51,13 +52,18 @@ func main() {
 	r := gin.Default()
 
 	r.GET("/", func(c *gin.Context) {
-		
-		c.JSON(http.StatusOK, gin.H{"data": "hello world", "Env.HOST" : os.Getenv("HOST")})
+
+		c.JSON(http.StatusOK, gin.H{"data": "hello world", "Env.HOST": os.Getenv("HOST")})
 	})
 
 	// Routes
 	//r.GET("/users", controllers.FindUsers)
 	r.GET("/users", func(c *gin.Context) {
+		// random1 := rand.Intn(100)
+		// if random1 == 10 {
+		// 	time.Sleep(10 * time.Second)
+		// }
+
 		c.JSON(http.StatusOK, gin.H{"data": users})
 	})
 

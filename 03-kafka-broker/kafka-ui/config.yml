@@ -1,0 +1,17 @@
+kafka:
+  clusters:
+    -
+      name: Primary Cluster
+      bootstrapServers: haproxy:8881,haproxy:8882,haproxy:8883
+      # schemaRegistry: http://localhost:8085
+      # schemaRegistryAuth:
+      #   username: username
+      #   password: password
+#     schemaNameTemplate: "%s-value"
+      metrics:
+        port: 9997
+        type: JMX
+
+    -
+      name: Secondary Cluster
+      bootstrapServers: haproxy:8884,haproxy:8885,haproxy:8886

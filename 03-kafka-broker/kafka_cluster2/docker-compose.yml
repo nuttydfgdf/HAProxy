@@ -1,0 +1,118 @@
+version: '3.7'
+
+networks:
+  kafka_cluster:
+    external: true
+
+services:
+
+  zookeeper_dc2:
+    image: confluentinc/cp-zookeeper:7.4.0
+    container_name: zookeeper_dc2
+    networks:
+      kafka_cluster:
+        aliases:
+        - zookeeper_dc2
+        ipv4_address: 192.168.1.12
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    healthcheck:
+      test: echo stat | nc localhost 2181
+      interval: 10s
+      timeout: 10s
+      retries: 3
+    
+  kafka4:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: kafka4
+    networks:
+      kafka_cluster:
+        aliases:
+        - kafka4
+        ipv4_address: 192.168.1.5
+    depends_on:
+      - zookeeper_dc2
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper_dc2:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: EXTERNAL:PLAINTEXT, INTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: EXTERNAL://192.168.1.5:9092, INTERNAL://kafka4:29092
+      KAFKA_LISTENERS: EXTERNAL://0.0.0.0:9092, INTERNAL://0.0.0.0:29092
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 3
+      KAFKA_NUM_PARTITIONS: 3
+      BOOTSTRAP_SERVERS: kafka4:29092,kafka5:29092,kafka6:29092
+      KAFKA_JMX_PORT: 19101
+      KAFKA_JMX_HOSTNAME: localhost
+    healthcheck:
+      test: nc -vz localhost 9092
+      interval: 10s
+      timeout: 10s
+      retries: 3
+
+  kafka5:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: kafka5
+    networks:
+      kafka_cluster:
+        aliases:
+        - kafka5
+        ipv4_address: 192.168.1.6
+    depends_on:
+      - zookeeper_dc2
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper_dc2:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: EXTERNAL:PLAINTEXT, INTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: EXTERNAL://192.168.1.6:9092, INTERNAL://kafka5:29092
+      KAFKA_LISTENERS: EXTERNAL://0.0.0.0:9092, INTERNAL://0.0.0.0:29092
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 3
+      KAFKA_NUM_PARTITIONS: 3
+      BOOTSTRAP_SERVERS: kafka4:29092,kafka5:29092,kafka6:29092
+      KAFKA_JMX_PORT: 19102
+      KAFKA_JMX_HOSTNAME: localhost
+    healthcheck:
+      test: nc -vz localhost 9092
+      interval: 10s
+      timeout: 10s
+      retries: 3
+
+
+  kafka6:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: kafka6
+    networks:
+      kafka_cluster:
+        aliases:
+        - kafka6
+        ipv4_address: 192.168.1.7
+    depends_on:
+      - zookeeper_dc2
+    environment:
+      KAFKA_BROKER_ID: 3
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper_dc2:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: EXTERNAL:PLAINTEXT, INTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: EXTERNAL://192.168.1.7:9092, INTERNAL://kafka6:29092
+      KAFKA_LISTENERS: EXTERNAL://0.0.0.0:9092, INTERNAL://0.0.0.0:29092
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 3
+      KAFKA_NUM_PARTITIONS: 3
+      BOOTSTRAP_SERVERS: kafka4:29092,kafka5:29092,kafka6:29092
+      KAFKA_JMX_PORT: 19103
+      KAFKA_JMX_HOSTNAME: localhost
+    healthcheck:
+      test: nc -vz localhost 9092
+      interval: 10s
+      timeout: 10s
+      retries: 3
